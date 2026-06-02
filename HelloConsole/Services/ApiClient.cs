@@ -2,19 +2,29 @@ namespace HelloConsole.Services;
 
 public class ApiClient : IApiClient
 {
-    private readonly HttpClient _sharedClient = new()
+    private readonly HttpClient _sharedClient =
+        new()
+        {
+            BaseAddress = new Uri("https://wilds.mhdb.io/")
+        };
+
+    public async Task<HttpResponseMessage> GetAsync(string route, DateTimeOffset? ifModifiedSince = null)
     {
-        BaseAddress = new Uri("https://wilds.mhdb.io/")
-    };
+        var request =
+            new HttpRequestMessage(
+                HttpMethod.Get,
+                route);
 
-    public async Task<string> GetAsync(string route)
-    {
-        using HttpResponseMessage response =
-            await _sharedClient.GetAsync(route);
+        // According to the API documentation, the server will respond with a
+        // 304 Not Modified response if your locally cached data is up-to-date.
+        if (ifModifiedSince is not null)
+        {
+            request.Headers
+                    .IfModifiedSince =
+                ifModifiedSince;
+        }
 
-        response.EnsureSuccessStatusCode();
-
-        return await response.Content
-            .ReadAsStringAsync();
+        return await _sharedClient
+            .SendAsync(request);
     }
 }

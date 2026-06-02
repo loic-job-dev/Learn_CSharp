@@ -2,6 +2,7 @@
 using HelloConsole.Helpers;
 using HelloConsole.Models;
 using HelloConsole.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace HelloConsole;
 
@@ -10,7 +11,10 @@ class Program
     static void Main(string[] args)
     {
         ApiClient client = new ApiClient();
-        MonsterService service = new MonsterService(client);
+        
+        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+        
+        MonsterService service = new MonsterService(client, cache);
 
         Console.WriteLine(
             "Choisissez un mode de consultation :\n" +
@@ -42,10 +46,10 @@ class Program
 
             try
             {
-                Monster? monster = service.GetMonsterByIndex(index)
+                Monster monster = service.GetMonsterByIndex(index)
                     .GetAwaiter()
                     .GetResult();
-                monster?.DisplayInfos();
+                monster.DisplayInfos();
             }
             catch (HttpRequestException ex)
             {
