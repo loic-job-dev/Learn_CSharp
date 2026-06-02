@@ -29,7 +29,9 @@ class Program
                     Console.ReadLine(),
                     out choice))
             {
-                Console.WriteLine("Nombre invalide");
+                ConsoleHelper.WriteLineColor(
+                    "Nombre invalide",
+                    ConsoleColor.DarkRed);
                 return;
             }
 
@@ -43,8 +45,9 @@ class Program
                             Console.ReadLine(),
                             out int index))
                     {
-                        Console.WriteLine(
-                            "Nombre invalide");
+                        ConsoleHelper.WriteLineColor(
+                            "Nombre invalide",
+                            ConsoleColor.DarkRed);
                         break;
                     }
 
@@ -95,10 +98,15 @@ class Program
                 }
 
                 case 9:
+                    ConsoleHelper.WriteLineColor(
+                        "\nByyyyyyye !",
+                        ConsoleColor.Cyan);
                     break;
 
                 default:
-                    Console.WriteLine("Choix invalide");
+                    ConsoleHelper.WriteLineColor(
+                        "Nombre invalide",
+                        ConsoleColor.DarkRed);
                     break;
             }
         }
