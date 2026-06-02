@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace HelloConsole.Services;
 
 public class ApiClient : IApiClient
@@ -22,18 +24,12 @@ public class ApiClient : IApiClient
     /// has not changed since that date.
     /// </param>
     /// <returns>
-    /// The HTTP response returned by the API.
+    /// The <see cref="ApiResponse"/> response returned by the API.
     /// </returns>
-    /// <remarks>
-    /// This method does not validate the HTTP status code.
-    /// The caller is responsible for checking the response
-    /// and calling <see cref="HttpResponseMessage.EnsureSuccessStatusCode"/>
-    /// when appropriate.
-    /// </remarks>
     /// <exception cref="HttpRequestException">
     /// Thrown when the request cannot be sent or completed.
     /// </exception>
-    public async Task<HttpResponseMessage> GetAsync(string route, DateTimeOffset? ifModifiedSince = null)
+    public async Task<ApiResponse> GetAsync(string route, DateTimeOffset? ifModifiedSince = null)
     {
         var request =
             new HttpRequestMessage(
@@ -49,7 +45,17 @@ public class ApiClient : IApiClient
                 ifModifiedSince;
         }
 
-        return await _sharedClient
-            .SendAsync(request);
+        HttpResponseMessage response = await _sharedClient.SendAsync(request);
+
+        return new ApiResponse
+        {
+            IsSuccess = response.IsSuccessStatusCode,
+
+            IsNotModified = response.StatusCode == HttpStatusCode.NotModified,
+
+            Content = await response.Content.ReadAsStringAsync(),
+
+            LastModified = response.Content.Headers.LastModified
+        };
     }
 }

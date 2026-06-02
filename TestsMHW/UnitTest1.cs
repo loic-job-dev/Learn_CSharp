@@ -1,18 +1,13 @@
-﻿using System.Net;
-using HelloConsole.Exceptions;
+﻿using HelloConsole.Exceptions;
 using HelloConsole.Models;
 using HelloConsole.Services;
-using Microsoft.Extensions.Caching.Memory;
 using Telerik.JustMock;
-using Telerik.JustMock.Helpers;
 
 namespace TestsMHW;
 
 public class Tests
 {
-    
     private IApiClient _mockApi;
-    private IMemoryCache _memoryCache;
     private MonsterService _service;
 
     private const string MonstersJson =
@@ -37,16 +32,24 @@ public class Tests
     public void Setup()
     {
         _mockApi = Mock.Create<IApiClient>();
-        
-        _memoryCache = new MemoryCache(new MemoryCacheOptions());
-
-        _service = new MonsterService(_mockApi, _memoryCache);
+        _service = new MonsterService(_mockApi);
+        if (Directory.Exists("cache"))
+        {
+            Directory.Delete(
+                "cache",
+                recursive: true);
+        }
     }
     
     [TearDown]
     public void TearDown()
     {
-        _memoryCache.Dispose();
+        if (Directory.Exists("cache"))
+        {
+            Directory.Delete(
+                "cache",
+                recursive: true);
+        }
     }
     
     [Test]
@@ -70,8 +73,12 @@ public class Tests
                     Arg.IsAny<DateTimeOffset?>()))
             .Returns(
                 Task.FromResult(
-                    CreateResponse(
-                        json)));
+                    new ApiResponse
+                    {
+                        Content = json,
+                        IsSuccess = true,
+                        IsNotModified = false
+                    }));
 
         // Act
         Monster? monster =
@@ -150,18 +157,12 @@ public class Tests
                         DateTimeOffset?>()))
             .Returns(
                 Task.FromResult(
-                    CreateResponse(
-                        MonstersJson)));
+                    new ApiResponse
+                    {
+                        Content = MonstersJson,
+                        IsSuccess = true,
+                        IsNotModified = false
+                    }));
     }
-
-    private HttpResponseMessage CreateResponse (string json)
-    {
-        return new HttpResponseMessage(
-            HttpStatusCode.OK)
-        {
-            Content =
-                new StringContent(
-                    json)
-        };
-    }
+    
 }
