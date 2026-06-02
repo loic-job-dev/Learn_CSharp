@@ -14,9 +14,6 @@ public class MonsterService
     /// <param name="apiClient">
     /// HTTP client used to communicate with the Monster Hunter Wilds API.
     /// </param>
-    /// <param name="memoryCache">
-    /// Local cache used to store monster data and reduce API calls.
-    /// </param>
     public MonsterService(IApiClient apiClient)
     {
         _apiClient = apiClient;
