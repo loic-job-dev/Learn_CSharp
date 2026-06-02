@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloConsole", "HelloConsole\HelloConsole.csproj", "{F5598EB8-17DE-4E2D-9DA3-22BA72DAB548}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsMHW", "TestsMHW\TestsMHW.csproj", "{7498D502-1E3A-4293-A8FC-F5359A5E3C76}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5598EB8-17DE-4E2D-9DA3-22BA72DAB548}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5598EB8-17DE-4E2D-9DA3-22BA72DAB548}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5598EB8-17DE-4E2D-9DA3-22BA72DAB548}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5598EB8-17DE-4E2D-9DA3-22BA72DAB548}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7498D502-1E3A-4293-A8FC-F5359A5E3C76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7498D502-1E3A-4293-A8FC-F5359A5E3C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7498D502-1E3A-4293-A8FC-F5359A5E3C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7498D502-1E3A-4293-A8FC-F5359A5E3C76}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
