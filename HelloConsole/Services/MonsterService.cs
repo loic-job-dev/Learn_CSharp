@@ -121,6 +121,11 @@ public class MonsterService
             {
                 ApiResponse response =
                     await _apiClient.GetAsync($"fr/monsters", lastWriteTime);
+                
+                if (!response.IsSuccess)
+                {
+                    throw new InvalidApiRequestException();
+                }
         
                 if (response.Content is null)
                 {
@@ -141,11 +146,6 @@ public class MonsterService
                 //If there's updates, the file is updated too
                 else
                 {
-                    if (!response.IsSuccess)
-                    {
-                        throw new MonsterNotFoundException();
-                    };
-                    
                     Console.WriteLine("Mise à jour du fichier en cache");
                     
                     await File.WriteAllTextAsync(
@@ -161,6 +161,11 @@ public class MonsterService
         {
             ApiResponse response =
                 await _apiClient.GetAsync($"fr/monsters");
+            
+            if (!response.IsSuccess)
+            {
+                throw new InvalidApiRequestException();
+            }
         
             if (response.Content is null)
             {
