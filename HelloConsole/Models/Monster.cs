@@ -10,7 +10,7 @@ public class Monster
     public string Description { get; set; }
 
     public Reward[] Rewards { get; set; } = [];
-
+    
     public void DisplayInfos()
     {
         Console.WriteLine();

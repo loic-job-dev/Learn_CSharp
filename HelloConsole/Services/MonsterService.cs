@@ -13,12 +13,35 @@ public class MonsterService
 
     private DateTimeOffset? _lastModified;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MonsterService"/> class.
+    /// </summary>
+    /// <param name="apiClient">
+    /// HTTP client used to communicate with the Monster Hunter Wilds API.
+    /// </param>
+    /// <param name="memoryCache">
+    /// Local cache used to store monster data and reduce API calls.
+    /// </param>
     public MonsterService(IApiClient apiClient, IMemoryCache memoryCache)
     {
         _apiClient = apiClient;
         _memoryCache = memoryCache;
     }
-
+    /// <summary>
+    /// Retrieves a monster from the API using its unique identifier.
+    /// </summary>
+    /// <param name="index">
+    /// The monster identifier used by the API.
+    /// </param>
+    /// <returns>
+    /// A <see cref="Monster"/> corresponding to the specified identifier.
+    /// </returns>
+    /// <exception cref="HttpRequestException">
+    /// Thrown when the API request fails.
+    /// </exception>
+    /// <exception cref="MonsterNotFoundException">
+    /// Thrown when the API response cannot be deserialized into a valid monster.
+    /// </exception>
     public async Task<Monster> GetMonsterByIndex(int index)
     {
         //No cache due to low data received
@@ -43,6 +66,19 @@ public class MonsterService
         return monster;
     }
     
+    /// <summary>
+    /// Retrieves a monster by its name.
+    /// </summary>
+    /// <param name="name">
+    /// The monster name to search for.
+    /// </param>
+    /// <returns>
+    /// The first monster whose name matches the specified value,
+    /// ignoring character casing.
+    /// </returns>
+    /// <exception cref="MonsterNotFoundException">
+    /// Thrown when no monster with the specified name exists.
+    /// </exception>
     public async Task<Monster> GetMonsterByName(
         string name)
     {
@@ -64,7 +100,7 @@ public class MonsterService
         }
         return monster;
     }
-
+    
     private async Task<Monster[]>
         GetAllMonsters()
     {
