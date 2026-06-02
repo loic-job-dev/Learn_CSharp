@@ -12,9 +12,7 @@ class Program
     {
         ApiClient client = new ApiClient();
         
-        IMemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-        
-        MonsterService service = new MonsterService(client, cache);
+        MonsterService service = new MonsterService(client);
 
         int choice = 0;
         

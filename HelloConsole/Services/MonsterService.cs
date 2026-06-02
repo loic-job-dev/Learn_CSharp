@@ -1,17 +1,12 @@
 using HelloConsole.Exceptions;
 using HelloConsole.Models;
 using Newtonsoft.Json;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace HelloConsole.Services;
 
 public class MonsterService
 {
     private readonly IApiClient _apiClient;
-    
-    private readonly IMemoryCache _memoryCache;
-
-    private DateTimeOffset? _lastModified;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MonsterService"/> class.
@@ -22,10 +17,9 @@ public class MonsterService
     /// <param name="memoryCache">
     /// Local cache used to store monster data and reduce API calls.
     /// </param>
-    public MonsterService(IApiClient apiClient, IMemoryCache memoryCache)
+    public MonsterService(IApiClient apiClient)
     {
         _apiClient = apiClient;
-        _memoryCache = memoryCache;
     }
     /// <summary>
     /// Retrieves a monster from the API using its unique identifier.
@@ -42,7 +36,7 @@ public class MonsterService
     /// <exception cref="MonsterNotFoundException">
     /// Thrown when the API response cannot be deserialized into a valid monster.
     /// </exception>
-    public async Task<Monster> GetMonsterByIndex(int index)
+    public async Task<Monster> GetMonsterByIndex (int index)
     {
         //No cache due to low data received
         using HttpResponseMessage response =
@@ -79,8 +73,7 @@ public class MonsterService
     /// <exception cref="MonsterNotFoundException">
     /// Thrown when no monster with the specified name exists.
     /// </exception>
-    public async Task<Monster> GetMonsterByName(
-        string name)
+    public async Task<Monster> GetMonsterByName (string name)
     {
         Monster[] monsters =
             await GetAllMonsters();
@@ -101,54 +94,98 @@ public class MonsterService
         return monster;
     }
     
-    private async Task<Monster[]>
-        GetAllMonsters()
+    private async Task<Monster[]> GetAllMonsters()
     {
-        using HttpResponseMessage response =
-            await _apiClient.GetAsync(
-                "fr/monsters",
-                _lastModified);
-
-        //If there isn't new data on the API server
-        if (response.StatusCode ==
-            System.Net.HttpStatusCode
-                .NotModified)
+        Directory.CreateDirectory("cache");
+        
+        string cacheFile =
+            "cache/monsters.json";
+        
+        if (File.Exists(cacheFile))
         {
-            //If there's cached data
-            if (_memoryCache.TryGetValue(
-                    "monster_list",
-                    out Monster[]?
-                        cachedMonsters))
+            DateTime lastWriteTime = File.GetLastWriteTimeUtc(cacheFile);
+
+            //If the cache file is less than 60-minutes-old, the data comes from this
+            if (DateTime.UtcNow - lastWriteTime < TimeSpan.FromMinutes(60))
             {
-                return cachedMonsters!;
+                string json = await File.ReadAllTextAsync(cacheFile);
+                
+                Console.WriteLine("Utilisation du fichier en cache");
+                
+                return DeserializeMonsters(json);
+            }
+            // If the file is older than 60 minutes
+            else
+            {
+                using HttpResponseMessage response =
+                    await _apiClient.GetAsync(
+                        "fr/monsters",
+                        lastWriteTime);
+                
+                //If there's no updates on the serveur
+                if (response.StatusCode ==
+                    System.Net.HttpStatusCode
+                        .NotModified)
+                {
+                    File.SetLastWriteTimeUtc(cacheFile,  DateTime.UtcNow);
+                    
+                    Console.WriteLine("Utilisation du fichier en cache");
+                    
+                    string json = await File.ReadAllTextAsync(cacheFile);
+                
+                    return DeserializeMonsters(json);
+                }
+                //If there's updates, the file is updated too
+                else
+                {
+                    response.EnsureSuccessStatusCode();
+                    
+                    var jsonResponse =
+                        await response.Content
+                            .ReadAsStringAsync();
+                    
+                    Console.WriteLine("Mise à jour du fichier en cache");
+                    
+                    await File.WriteAllTextAsync(
+                        cacheFile,
+                        jsonResponse);
+                    
+                    return DeserializeMonsters(jsonResponse);
+                }
             }
         }
-
-        //Else, the HTTP response is serialized
-        response
-            .EnsureSuccessStatusCode();
-
-        var jsonResponse =
-            await response.Content
-                .ReadAsStringAsync();
-
-        Monster[] monsters =
-            JsonConvert
-                .DeserializeObject<
-                    Monster[]>(jsonResponse)
-            ?? [];
-
-        //New value for lastModified
-        _lastModified =
-            response.Content
-                .Headers
-                .LastModified;
-
-        //New value for the cache
-        _memoryCache.Set(
-            "monster_list",
-            monsters,
-            TimeSpan.FromMinutes(60));
+        //If there's no file in cache
+        else
+        {
+            using HttpResponseMessage response =
+                await _apiClient.GetAsync(
+                    "fr/monsters");
+                
+            response.EnsureSuccessStatusCode();
+            
+            var jsonResponse =
+                await response.Content
+                    .ReadAsStringAsync();
+                    
+            await File.WriteAllTextAsync(
+                cacheFile,
+                jsonResponse);
+                    
+            Console.WriteLine("Ecriture du fichier en cache");
+            
+            return DeserializeMonsters(jsonResponse);
+        }
+    }
+    
+    private static Monster[] DeserializeMonsters(
+        string json)
+    {
+        Monster[] monsters = JsonConvert.DeserializeObject<Monster[]>(json) ?? [];
+        
+        if (monsters is null)
+        {
+            throw new MonsterNotFoundException();
+        }
 
         return monsters;
     }

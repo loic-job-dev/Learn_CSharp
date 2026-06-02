@@ -3,6 +3,9 @@
 *.user
 *.sln.docstates
 
+# cache files
+monsters.json
+
 # Build results
 [Dd]ebug/
 [Rr]elease/
