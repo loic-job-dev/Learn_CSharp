@@ -41,6 +41,11 @@ public class MonsterService
         //No cache due to low data received
         ApiResponse response =
             await _apiClient.GetAsync($"fr/monsters/{index}");
+
+        if (!response.IsSuccess)
+        {
+            throw new InvalidApiRequestException();
+        }
         
         if (response.Content is null)
         {

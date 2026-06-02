@@ -97,6 +97,41 @@ public class Tests
             Is.EqualTo(
                 "Zoh Shia"));
     }
+    
+    [Test]
+    public void
+        GetMonsterByIndex_rongIndex_ShouldThrowException()
+    {
+        // Arrange
+        Mock.Arrange(() =>
+                _mockApi.GetAsync(
+                    Arg.AnyString,
+                    Arg.IsAny<DateTimeOffset?>()))
+            .Returns(
+                Task.FromResult(
+                    new ApiResponse
+                    {
+                        Content = null,
+                        IsSuccess = false,
+                        IsNotModified = false
+                    }));
+
+        // Act + Assert
+        var exception =
+            Assert.Throws<
+                InvalidApiRequestException>(
+                () =>
+                    _service
+                        .GetMonsterByIndex(
+                            200)
+                        .GetAwaiter()
+                        .GetResult());
+
+        Assert.That(
+            exception!.Message,
+            Is.EqualTo(
+                "Requête API invalide."));
+    }
 
     [Test]
     public void

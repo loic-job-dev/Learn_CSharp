@@ -67,6 +67,12 @@ class Program
                             "Index inconnu",
                             ConsoleColor.DarkRed);
                     }
+                    catch (Exception ex)
+                    {
+                        ConsoleHelper.WriteLineColor(
+                            ex.Message,
+                            ConsoleColor.DarkRed);
+                    }
 
                     break;
                 }
